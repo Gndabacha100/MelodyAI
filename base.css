@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0d3b25, #111111);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.navbar img {
+    margin-right: 0.5rem;
+}
+.navbar span {
+    color: white;
+}
+
+/* Card Container */
+.container {
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 2.5rem;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.text-center { text-align: center; }
+
+h1 { margin-top: 0; font-size: 2rem; }
+p.subtitle { color: #b3b3b3; margin-bottom: 2rem; margin-top: -10px; }
+
+form label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: bold; }
+form input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1.5rem;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: white;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+form input:focus {
+    outline: none;
+    border-color: #1db954;
+}
+
+.btn-primary {
+    background: #1db954;
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 500px;
+    padding: 1rem;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+}
+.btn-primary:hover {
+    background: #1ed760;
+    transform: scale(1.02);
+}
+
+.login-link { margin-top: 1.5rem; color: #b3b3b3; font-size: 0.9rem; }
+.login-link a { color: white; font-weight: bold; text-decoration: underline; }
+
+.rec-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
