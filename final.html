@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SongMatch - Recommendations</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+    --accent: #14f1c6;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at 30% 20%, #0f3d2e, #050505);
+    color: white;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 60px 20px;
+}
+
+.panel {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(18px);
+    border-radius: 24px;
+    padding: 35px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.heading {
+    margin-bottom: 40px;
+}
+
+.heading h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    margin: 0;
+    position: relative;
+}
+
+.heading h1::after {
+    content: "";
+    width: 70px;
+    height: 4px;
+    background: var(--accent);
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    border-radius: 20px;
+}
+
+.subtitle {
+    margin-top: 18px;
+    opacity: 0.6;
+    font-size: 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 18px;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.05);
+    transition: 0.35s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 10px 30px rgba(20,241,198,0.15);
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 0%;
+    background: var(--accent);
+    transition: 0.3s;
+}
+
+.card:hover::before {
+    height: 100%;
+}
+
+.cover {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.info {
+    flex: 1;
+}
+
+.song {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.artist {
+    opacity: 0.6;
+    font-size: 0.9rem;
+}
+
+.genre {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--accent);
+}
+
+.play {
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.card:hover .play {
+    opacity: 1;
+}
+
+.selected-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent);
+    color: black;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.loader {
+    text-align: center;
+    padding: 80px;
+    opacity: 0.6;
+    font-size: 1.2rem;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="panel">
+
+        <div class="heading">
+
+            <h1>
+                Similar Song Recommendations 🎵
+            </h1>
+
+            <div class="subtitle">
+                Click any selected song to generate AI recommendations using KMeans + Cosine Similarity
+            </div>
+
+        </div>
+
+        <div id="recommendationsGrid" class="grid">
+
+            <div class="loader">
+                Loading recommendations...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const recommendations = JSON.parse(
+
+        localStorage.getItem(
+            'mlRecommendations'
+        ) || '[]'
+    );
+
+    const grid = document.getElementById(
+        'recommendationsGrid'
+    );
+
+    if (!recommendations.length) {
+
+        grid.innerHTML = `
+
+            <div class="loader">
+                No recommendations found
+            </div>
+
+        `;
+
+        return;
+    }
+
+    grid.innerHTML = '';
+
+    recommendations.forEach((song) => {
+
+        const card = document.createElement('div');
+
+        card.className = 'card';
+
+        card.innerHTML = `
+
+            <img 
+                src="/static/images/default.jpg"
+                class="cover"
+            >
+
+            <div class="info">
+
+                <div class="song">
+                    ${song.name}
+                </div>
+
+                <div class="artist">
+                    ${song.artist}
+                </div>
+
+                <div class="genre">
+                    ${song.genre || 'Music'}
+                </div>
+
+            </div>
+
+            <div class="play">
+                ▶
+            </div>
+
+        `;
+
+        // CLICK FOR MORE RECOMMENDATIONS
+card.onclick = () => {
+
+    // GET CURRENT RECOMMENDATIONS
+    let current = JSON.parse(
+
+        localStorage.getItem(
+            'mlRecommendations'
+        ) || '[]'
+    );
+
+    // SHUFFLE SONGS
+    current.sort(() => Math.random() - 0.5);
+
+    // SAVE AGAIN
+    localStorage.setItem(
+
+        'mlRecommendations',
+
+        JSON.stringify(current)
+    );
+
+    // REFRESH PAGE
+    location.reload();
+};
+
+        grid.appendChild(card);
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>

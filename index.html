@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecliptic Music Recommender</title>
+    <!-- Modern Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <main class="app-container">
+        <header>
+            <h1><i class="fa-solid fa-wave-square"></i> Ecliptic</h1>
+            <p class="subtitle">AI-Powered ML Music Discovery</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search for a track to discover similar music..." autocomplete="off">
+                <button id="clearSearch" class="hidden"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="searchResults" class="dropdown-results hidden">
+                <!-- Search results injected here -->
+            </div>
+        </section>
+
+        <section id="nowPlaying" class="now-playing-section hidden">
+            <div class="target-card glass-panel">
+                <div class="card-art">
+                    <i class="fa-solid fa-record-vinyl fa-spin spin-slow"></i>
+                </div>
+                <div class="card-info">
+                    <div class="badge">Target Track</div>
+                    <h2 id="targetTitle">Song Title</h2>
+                    <p id="targetArtist">Artist Name</p>
+                    <span id="targetGenre" class="pill">Genre</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="recommendationsSection" class="recommendations-section hidden">
+            <div class="section-header">
+                <h3>Recommended Matches</h3>
+                <div class="algorithm-badge">
+                    <i class="fa-solid fa-microchip"></i> K-Means & Cosine Sim
+                </div>
+            </div>
+            
+            <div id="loader" class="loader-container hidden">
+                <div class="spinner"></div>
+                <p>Analyzing audio features...</p>
+            </div>
+
+            <div id="recommendationsGrid" class="grid-container">
+                <!-- Recommendation cards injected here -->
+            </div>
+        </section>
+        
+        <div id="toast" class="toast hidden"></div>
+        
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

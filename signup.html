@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody AI - Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .container-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <i class="fa-solid fa-music" style="color: #1ed760; margin-right: 10px;"></i>
+        <span>Melody AI</span>
+    </div>
+
+    <div class="container-wrapper">
+        <div class="container">
+            <div class="text-center">
+                <h1>Sign up for free</h1>
+                <p class="subtitle">Discover songs tailored to your taste</p>
+            </div>
+
+            <form id="signup-form">
+                <label for="name">What should we call you?</label>
+                <input type="text" id="name" placeholder="Enter your name" required>
+
+                <label for="email">Email address</label>
+                <input type="email" id="email" placeholder="name@example.com" required>
+
+                <label for="password">Create a password</label>
+                <input type="password" id="password" placeholder="Create a password" required>
+
+                <button type="submit" class="btn-primary">Sign Up</button>
+
+                <div class="text-center login-link">
+                    Already have an account? <a href="/login">Log in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // 🔥 IMPORTANT: handle non-JSON safely
+                let result;
+                try {
+                    result = await response.json();
+                } catch (err) {
+                    const text = await response.text();
+                    console.error("Non-JSON response:", text);
+                    alert("Server returned invalid response");
+                    return;
+                }
+
+                console.log("Response:", result);
+
+                if (response.ok && result.success) {
+                    localStorage.setItem('userName', data.name);
+                    window.location.href = '/select-songs';
+                } else {
+                    alert(result.message || "Error saving user");
+                }
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Server not reachable");
+            }
+        });
+    </script>
+</body>
+
+</html>

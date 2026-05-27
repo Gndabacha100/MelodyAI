@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SongMatch</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --accent: #14f1c6;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at 20% 20%, #0f3d2e, #050505);
+    color: white;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+    opacity: 0.6;
+}
+
+.search {
+    margin: 30px auto;
+    max-width: 500px;
+}
+
+.search input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.08);
+}
+
+.card.selected {
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 15px rgba(20,241,198,0.4);
+}
+
+.cover {
+    width: 55px;
+    height: 55px;
+    border-radius: 10px;
+    margin-right: 12px;
+}
+
+.song {
+    font-weight: 600;
+}
+
+.artist {
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+.next {
+    margin-top: 40px;
+    text-align: center;
+}
+
+button {
+    padding: 14px 40px;
+    border-radius: 40px;
+    border: none;
+    background: #1a1a1a;
+    color: #aaa;
+    cursor: not-allowed;
+    transition: 0.3s;
+}
+
+button.active {
+    background: var(--accent);
+    color: black;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(20,241,198,0.5);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1 class="title">Pick your top 5 songs</h1>
+    <p class="subtitle"><span id="count">0</span>/5 selected</p>
+
+    <div class="search">
+        <input id="search" placeholder="Search music...">
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <div class="next">
+        <button id="nextBtn">Continue →</button>
+    </div>
+</div>
+<script>
+
+let songs = [];
+let selected = [];
+
+
+// ===============================
+// LOAD SONGS
+// ===============================
+async function loadSongs() {
+
+    try {
+
+        const res = await fetch('/api/songs');
+
+        const data = await res.json();
+
+        songs = data.songs || [];
+
+        // INITIAL RENDER
+        render(songs.slice(0, 100));
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Failed to load songs");
+    }
+}
+
+
+// ===============================
+// RENDER SONGS
+// ===============================
+function render(list) {
+
+    const grid = document.getElementById('grid');
+
+    grid.innerHTML = '';
+
+    list.forEach((s) => {
+
+        const el = document.createElement('div');
+
+        el.className = "card";
+
+        // KEEP SELECTED STATE
+        if (selected.includes(s.name)) {
+
+            el.classList.add('selected');
+        }
+
+        el.innerHTML = `
+
+            <img 
+                src="/static/images/default.jpg"
+                class="cover"
+            >
+
+            <div>
+
+                <div class="song">
+                    ${s.name}
+                </div>
+
+                <div class="artist">
+                    ${s.artist}
+                </div>
+
+            </div>
+        `;
+
+        // CLICK
+        el.onclick = () => toggle(s.name);
+
+        grid.appendChild(el);
+    });
+}
+
+
+// ===============================
+// TOGGLE SELECTION
+// ===============================
+
+function toggle(songName) {
+
+    const position = selected.indexOf(songName);
+
+    // REMOVE
+    if (position > -1) {
+
+        selected.splice(position, 1);
+
+    } else {
+
+        // LIMIT
+        if (selected.length >= 5) {
+
+            alert("Only 5 songs allowed!");
+
+            return;
+        }
+
+        // ADD
+        selected.push(songName);
+    }
+
+    // UPDATE COUNTER
+    document.getElementById('count')
+        .innerText = selected.length;
+
+    // BUTTON STATE
+    const btn = document.getElementById('nextBtn');
+
+    if (selected.length === 5) {
+
+        btn.classList.add('active');
+
+    } else {
+
+        btn.classList.remove('active');
+    }
+
+    // RE-RENDER
+    render(songs.slice(0, 100));
+}
+
+// ===============================
+// CONTINUE BUTTON
+// ===============================
+document.getElementById('nextBtn').onclick = () => {
+
+    if (selected.length !== 5) {
+
+        alert("Select exactly 5 songs");
+
+        return;
+    }
+
+    // SAVE
+    localStorage.setItem(
+        'selectedSongs',
+        JSON.stringify(selected)
+    );
+
+    // REDIRECT
+    window.location.href =
+        "/recommendations";
+};
+
+
+// ===============================
+// SEARCH
+// ===============================
+document.getElementById('search')
+.addEventListener('input', (e) => {
+
+    const query = e.target.value.toLowerCase();
+
+    const filtered = songs.filter(song =>
+
+        String(song.name)
+            .toLowerCase()
+            .includes(query)
+
+        ||
+
+        String(song.artist)
+            .toLowerCase()
+            .includes(query)
+
+        ||
+
+        String(song.genre || '')
+            .toLowerCase()
+            .includes(query)
+    );
+
+    render(filtered);
+});
+
+
+// ===============================
+// INITIAL LOAD
+// ===============================
+loadSongs();
+
+</script>
+
+</body>
+</html>
